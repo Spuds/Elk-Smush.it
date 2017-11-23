@@ -6,7 +6,7 @@
  * @copyright (c) 2014 Spuds
  * @license Mozilla Public License version 1.1 http://www.mozilla.org/MPL/1.1/.
  *
- * @version 0.3
+ * @version 0.4
  *
  */
 
@@ -87,6 +87,7 @@ function smushitAttachments()
 	$context[$context['admin_menu_name']]['current_subsection'] = 'maintenance';
 	$context['sub_template'] = 'attachment_smushit';
 	$context['completed'] = true;
+	obExit();
 }
 
 /**
@@ -107,9 +108,9 @@ function pauseAttachmentSmushit($max_steps = 0)
 	}
 
 	// Have we already used our maximum time, don't want to just run forever.
-	if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 30)
+	if ((microtime(true) - $time_start) > 5)
 	{
-		$context['smushit_results'][9999999] = '|' . $txt['smushit_attachments_timeout'] . ' ' . array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start));
+		$context['smushit_results'][9999999] = '|' . $txt['smushit_attachments_timeout'] . ' ' . (microtime(true) - $time_start);
 
 		return;
 	}
@@ -120,6 +121,8 @@ function pauseAttachmentSmushit($max_steps = 0)
 	$context['continue_post_data'] = '';
 	$context['continue_countdown'] = 3;
 	$context['sub_template'] = 'not_done';
+
+	// Specific stuff to not break this template!
 	$context[$context['admin_menu_name']]['current_subsection'] = 'maintenance';
 	$context['continue_percent'] = round(((int) $_GET['step'] / $max_steps) * 100);
 	$context['continue_percent'] = min($context['continue_percent'], 100);

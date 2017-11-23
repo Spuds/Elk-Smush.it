@@ -18,10 +18,10 @@ function template_attachment_smushit()
 			<table class="table_grid">
 				<thead>
 					<tr class="table_header">
-						<th class="first_th"></th>
-						<th>#</th>
-						<th>', $txt['attachment_name'], '</th>
-						<th class="last_th">', $txt['smushit_attachments'], '</th>
+						<th scope="col"></th>
+						<th scope="col">#</th>
+						<th scope="col">', $txt['attachment_name'], '</th>
+						<th scope="col">', $txt['smushit_attachments'], '</th>
 					</tr>
 				</thead>
 				<tbody>';
@@ -29,7 +29,6 @@ function template_attachment_smushit()
 		// Loop through each result reporting the status
 		$i = 1;
 		$savings = 0;
-		$alternate = true;
 
 		if (isset($context['smushit_results']))
 		{
@@ -39,12 +38,13 @@ function template_attachment_smushit()
 				list($filename, $result) = explode('|', $result, 2);
 				echo '
 					<tr>
-						<td class="', $alternate ? 'windowbg2' : 'windowbg', '"><img src="' . $settings['images_url'] . '/icons/' . (($count != 0) ? 'field_valid' : 'field_invalid') . '.gif' . '"/></td>
-						<td class="', $alternate ? 'windowbg2' : 'windowbg', '">' . $i . '</td>
-						<td class="', $alternate ? 'windowbg2' : 'windowbg', '">[' . $attach_id . '] ' . $filename . '</td>
-						<td class="', $alternate ? 'windowbg2' : 'windowbg', '">' . $result . '</td>
+						<td class="standard_row">
+							<img src="' . $settings['images_url'] . '/icons/' . (($count != 0) ? 'field_valid' : 'field_invalid') . '.png' . '"/>
+						</td>
+						<td class="standard_row">' . $i . '</td>
+						<td class="standard_row">[' . $attach_id . '] ' . $filename . '</td>
+						<td class="standard_row">' . $result . '</td>
 					</tr>';
-				$alternate = !$alternate;
 				$i++;
 
 				// Keep track of how great we are
@@ -64,7 +64,9 @@ function template_attachment_smushit()
 				</tbody>
 			</table>
 			<br />
-			<p><strong>' . $txt['smushit_attachments_savings'] . ' ' . round($savings, 2) . ' ' . $units[$pow] . '</strong></p>
+			<p>
+				<strong>' . $txt['smushit_attachments_savings'] . ' ' . round($savings, 2) . ' ' . $units[$pow] . '</strong>
+			</p>
 		</div>
 	</div>';
 	}
