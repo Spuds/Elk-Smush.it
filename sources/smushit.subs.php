@@ -11,7 +11,9 @@
  */
 
 if (!defined('ELK'))
+{
 	die('No access...');
+}
 
 /**
  * Batch processing of attachments from the attachment file maintenance section
@@ -54,7 +56,9 @@ function smushitAttachments()
 	// Set up this pass through the loop so we know which data chunk to work on
 	$images = (isset($_SESSION['smushit_images'])) ? $_SESSION['smushit_images'] : 0;
 	if (isset($_SESSION['smushit_results']))
+	{
 		$context['smushit_results'] = $_SESSION['smushit_results'];
+	}
 
 	// Get the next group of attachments that meet our criteria
 	$files = smushit_getFiles((int) $_GET['step'], $chunk_size, '', '', $_SESSION['smushitsize'], $_SESSION['smushitage']);
@@ -63,13 +67,17 @@ function smushitAttachments()
 	foreach ($files as $row)
 	{
 		if (empty($row['smushit']))
+		{
 			smushitMain($row);
+		}
 	}
 
 	// Update the pointer and see if we have more to do ....
 	$_GET['step'] += $chunk_size;
 	if ($_GET['step'] < $images)
+	{
 		pauseAttachmentSmushit($images);
+	}
 
 	// Got here we must be doing well, well as in we did something, first lets clean up
 	unset($_GET['step'], $_SESSION['smushit_results'], $_SESSION['smushit_images'], $_SESSION['smushitage'], $_SESSION['smushitsize']);
@@ -85,6 +93,7 @@ function smushitAttachments()
  * Sets up for the next loop
  *
  * @param int $max_steps
+ * @throws \Elk_Exception
  */
 function pauseAttachmentSmushit($max_steps = 0)
 {
@@ -93,7 +102,9 @@ function pauseAttachmentSmushit($max_steps = 0)
 	// Try get more time...
 	@set_time_limit(600);
 	if (function_exists('apache_reset_timeout'))
+	{
 		@apache_reset_timeout();
+	}
 
 	// Have we already used our maximum time, don't want to just run forever.
 	if (array_sum(explode(' ', microtime())) - array_sum(explode(' ', $time_start)) > 30)
@@ -304,7 +315,9 @@ function SmushitBrowse()
 
 	// Clear errors
 	if (isset($_SESSION['truth_or_consequence']))
+	{
 		unset($_SESSION['truth_or_consequence']);
+	}
 
 	// Create the list.
 	require_once(SUBSDIR . '/GenericList.class.php');
@@ -332,11 +345,15 @@ function smushit_getFiles($start, $chunk_size, $sort = '', $type = '', $size = 0
 	$db = database();
 
 	// Init
-	if ($sort == '')
+	if ($sort === '')
+	{
 		$sort = 'a.id_attach DESC';
+	}
 
 	if ($size === 0 && !empty($modSettings['smushit_attachment_size']))
+	{
 		$size = 1024 * $modSettings['smushit_attachment_size'];
+	}
 
 	// Make the query, smushit cant be larger than 1M :(
 	$request = $db->query('', '
@@ -349,8 +366,8 @@ function smushit_getFiles($start, $chunk_size, $sort = '', $type = '', $size = 0
 		WHERE a.attachment_type = {int:attach}
 			AND a.size BETWEEN {int:attach_size} AND 1024000
 			AND (a.fileext = \'jpg\' OR a.fileext = \'png\' OR a.fileext = \'gif\')' .
-		(($age != '') ? 'AND m.poster_time > {int:poster_time} ' : '') .
-		(($type != '') ? 'AND a.smushit = {int:smushit}' : '') . '
+		(($age !== '') ? 'AND m.poster_time > {int:poster_time} ' : '') .
+		(($type !== '') ? 'AND a.smushit = {int:smushit}' : '') . '
 		ORDER BY {raw:sort}
 		' . ((!empty($chunk_size)) ? 'LIMIT {int:offset}, {int:limit} ' : ''),
 		array(
@@ -366,7 +383,9 @@ function smushit_getFiles($start, $chunk_size, $sort = '', $type = '', $size = 0
 	// Put the results in an array
 	$files = array();
 	while ($row = $db->fetch_assoc($request))
+	{
 		$files[] = $row;
+	}
 	$db->free_result($request);
 
 	return $files;
@@ -420,6 +439,7 @@ function smushit_getNumFiles($not_smushed = false)
  * - updates database with any changes
  *
  * @param mixed[] $file
+ * @throws \Elk_Exception
  */
 function smushitMain($file)
 {
@@ -472,7 +492,9 @@ function smushitMain($file)
 					@unlink($tempfile);
 				}
 				else
+				{
 					$context['smushit_results'][$file['id_attach']] = $file['filename'] . '|' . $txt['smushit_attachments_corrupt'];
+				}
 			}
 			// No savings in size possible, mark it as smushed so we don't try again
 			else
@@ -497,7 +519,9 @@ function smushitMain($file)
 		}
 		// Failure on the smushit size, invalid response bad image, to big, other
 		else
-			$context['smushit_results'][$file['id_attach']] = $file['filename'] . '|' . $txt['smushit_attachments_error'] . ' ' . $response->success;
+		{
+			$context['smushit_results'][$file['id_attach']] = $file['filename'] . '|' . $txt['smushit_attachments_error'] . ' ' . $response->success . ' :: ' . $response->data;
+		}
 	}
 
 	// Done with this one, make sure we clean up after ourselves
@@ -512,6 +536,7 @@ function smushitMain($file)
  * @param string $filename_withpath
  * @param array $file
  * @param object $response
+ * @throws \Elk_Exception
  */
 function save_smushit_file($tempfile, $filename_withpath, $file, $response)
 {
@@ -521,7 +546,7 @@ function save_smushit_file($tempfile, $filename_withpath, $file, $response)
 
 	// See what we really have now
 	$sizes = @getimagesize($tempfile);
-	$known = array(1 => 'gif', 	2 => 'jpg', 3 => 'png', 9 => 'jpg');
+	$known = array(1 => 'gif', 2 => 'jpg', 3 => 'png', 9 => 'jpg');
 	$smushit_ext = (isset($sizes[2], $known[$sizes[2]])) ? $known[$sizes[2]] : 'na';
 
 	// Things are cool with the returned file type?
@@ -573,15 +598,21 @@ function save_smushit_file($tempfile, $filename_withpath, $file, $response)
 			}
 			// Image failed to copy back to the attach directory
 			else
+			{
 				$context['smushit_results'][$file['id_attach']] = $file['filename'] . '|' . $txt['smushit_attachments_copyfail'];
+			}
 		}
 		// Image failed validation, skipping
 		else
+		{
 			$context['smushit_results'][$file['id_attach']] = $file['filename'] . $file['width'] . $file['height'] . '|' . $txt['smushit_attachments_verify'];
+		}
 	}
 	// Not allowed to change the file format so skip it
 	else
+	{
 		$context['smushit_results'][$file['id_attach']] = $file['filename'] . '|' . $txt['smushit_attachments_noformatchange'];
+	}
 }
 
 /**
@@ -613,13 +644,17 @@ function make_smushit_request($file, $file_data)
 		unset($file_data);
 
 		if ($fetch_data->result('error'))
+		{
 			$context['smushit_results'][$file['id_attach']] = $file['filename'] . '|' . $txt['smushit_attachments_error'] . ' ' . $fetch_data->result('error');
+		}
 
 		return $fetch_data;
 	}
 	// Error on the web_fetch_data or a non JSON result ...
 	else
+	{
 		$context['smushit_results'][$file['id_attach']] = $file['filename'] . '|' . $txt['smushit_attachments_network'];
+	}
 
 	return false;
 }
@@ -645,7 +680,9 @@ function SmushitSelect()
 
 		// All the attachments that have been selected to smush.it
 		foreach ($_POST['smushit'] as $smushID => $dummy)
+		{
 			$attachments[] = (int) $smushID;
+		}
 
 		// While we have attachments to work on
 		if (!empty($attachments))
@@ -665,7 +702,9 @@ function SmushitSelect()
 			// Put the results in an array
 			$files = array();
 			while ($row = $db->fetch_assoc($request))
+			{
 				$files[] = $row;
+			}
 			$db->free_result($request);
 
 			// Do the smush.it oh baby.
@@ -676,7 +715,9 @@ function SmushitSelect()
 				// Try get more time...
 				@set_time_limit(60);
 				if (function_exists('apache_reset_timeout'))
+				{
 					@apache_reset_timeout();
+				}
 			}
 
 			// Errors or savings?
@@ -696,11 +737,15 @@ function SmushitSelect()
 					{
 						// Keep track of the size savings
 						if (preg_match('~.*\((\d*)\).*~', $result, $thissavings))
+						{
 							$savings += $thissavings[1];
+						}
 						$truth_or_consequence .= '<img src="' . $settings['images_url'] . '/icons/field_valid.png"/> ' . $filename . ': ' . $result;
 					}
 					else
+					{
 						$truth_or_consequence .= '<img src="' . $settings['images_url'] . '/icons/field_invalid.png"/> ' . $filename . ': ' . $result;
+					}
 
 					$truth_or_consequence .= '<br />';
 				}
@@ -725,7 +770,9 @@ function SmushitSelect()
 	// Done, back to the browse list we go
 	$_REQUEST['sort'] = isset($_REQUEST['sort']) ? (string) $_REQUEST['sort'] : 'filesize';
 	if (isset($_REQUEST["desc"]))
+	{
 		$_REQUEST['sort'] .= ';desc';
+	}
 
 	redirectexit('action=admin;area=manageattachments;sa=smushitbrowse;sort=' . $_REQUEST['sort'] . ';start=' . $_REQUEST['start']);
 }
@@ -736,6 +783,7 @@ function SmushitSelect()
  * - Used to add subactions to the addon area
  *
  * @param mixed[] $sub_actions
+ * @throws \Elk_Exception
  */
 function iama_smushit(&$sub_actions)
 {
@@ -798,7 +846,9 @@ function igm_smushit(&$config_vars)
 	loadLanguage('smushit');
 
 	if (!empty($config_vars))
+	{
 		$config_vars = array_merge($config_vars, array(''));
+	}
 
 	$config_vars = array_merge($config_vars, array(
 		array('check', 'smushit_attachments_png'),
@@ -808,6 +858,8 @@ function igm_smushit(&$config_vars)
 
 /**
  * Called from the scheduled task area, runs smushit on a reoccurring basis
+ *
+ * integrate_autotask_include
  */
 function scheduled_smushit()
 {
@@ -819,8 +871,7 @@ function scheduled_smushit()
 	loadLanguage('smushit');
 
 	// Get the large files
-	$size = (!empty($modSettings['smushit_attachments_size']) ? 1024 * $modSettings['smushit_attachments_size']
-		: 0);
+	$size = (!empty($modSettings['smushit_attachments_size']) ? 1024 * $modSettings['smushit_attachments_size'] : 0);
 
 	// Use a bit of a buffer to look back a couple of days, smush.it can be down from time to time
 	$age = time() - (72 * 60 * 60);
@@ -836,7 +887,9 @@ function scheduled_smushit()
 		// Try get more time...
 		@set_time_limit(60);
 		if (function_exists('apache_reset_timeout'))
+		{
 			@apache_reset_timeout();
+		}
 	}
 
 	return true;
