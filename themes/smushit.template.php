@@ -12,7 +12,7 @@ function template_attachment_smushit()
 	{
 		echo '
 	<div id="manage_attachments">
-		<h3 class="category_header">', $txt['smushit_attachments_complete'], '</h3>
+		<h2 class="category_header">', $txt['smushit_attachments_complete'], '</h2>
 		<div class="content">
 			<p>', $txt['smushit_attachments_complete_desc'], '</p>
 			<table class="table_grid">
@@ -71,22 +71,20 @@ function template_attachment_smushit()
 }
 
 /**
- * Maintainance section, injected in the layer via ->add
+ * Maintenance section, injected in the layer via ->add
  */
 function template_smushit_maintain_below()
 {
 	global $txt, $scripturl, $context;
 
 	echo '
-	<h3 class="category_header">', $txt['smushit_attachment_check'], '</h3>
-	<div id="manage_boards" class="windowbg">
-		<div class="content" style="margin-top: -10px">
-			<form action="', $scripturl, '?action=admin;area=manageattachments;sa=smushit;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="UTF-8">
-				<p>', $txt['smushit_attachment_check_desc'], '</p>
-				<br />
-				', $txt['smushit_attachments_age'], ' <input type="text" name="smushitage" value="25" size="4" class="input_text" /> ', $txt['days_word'], '<br />
-				<input type="submit" name="submit" value="', $txt['smushit_attachment_now'], '" class="right_submit" />
-			</form>
-		</div>
+	<h2 class="category_header">', $txt['smushit_attachment_check'], '</h2>
+	<div id="manage_boards" class="content">
+		<form action="', $scripturl, '?action=admin;area=manageattachments;sa=smushit;', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="UTF-8">
+			<p>', $txt['smushit_attachment_check_desc'], '</p>
+			<br />
+			', $txt['smushit_attachments_age'], ' <input type="text" name="smushitage" value="25" size="4" class="input_text" /> ', $txt['days_word'], '<br />
+			<input type="submit" name="submit" value="', $txt['smushit_attachment_now'], '" class="right_submit" />
+		</form>
 	</div>';
 }
