@@ -6,7 +6,7 @@
  * @copyright (c) 2014 Spuds
  * @license Mozilla Public License version 1.1 http://www.mozilla.org/MPL/1.1/.
  *
- * @version 0.4
+ * @version 0.5
  *
  */
 
@@ -451,6 +451,7 @@ function smushitMain($file)
 	$db = database();
 
 	// Some needed functions
+	require_once(SUBSDIR . '/Attachments.subs.php');
 	require_once(SOURCEDIR . '/CurlFetchWebdata.class.php');
 	require_once(SUBSDIR . '/Graphics.subs.php');
 

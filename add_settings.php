@@ -5,7 +5,7 @@
  * @copyright Spuds
  * @license   MPL 1.1 http://mozilla.org/MPL/1.1/
  *
- * @version 0.3
+ * @version 0.5
  *
  */
 
@@ -92,7 +92,7 @@ foreach ($columns as $column)
 	$dbtbl->db_add_column($column['table_name'], $column['column_info'], $column['parameters'], $column['if_exists'], $column['error']);
 }
 
-if (ELK == 'SSI')
+if (ELK === 'SSI')
 {
 	echo 'Congratulations! You have successfully installed this addon!';
 }
