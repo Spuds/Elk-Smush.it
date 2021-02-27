@@ -10,11 +10,6 @@
  *
  */
 
-if (!defined('ELK'))
-{
-	die('No access...');
-}
-
 /**
  * Batch processing of attachments from the attachment file maintenance section
  *
@@ -409,7 +404,8 @@ function smushit_getNumFiles($not_smushed = false)
 
 	// Get the image attachment count that meets the criteria
 	$request = $db->query('', '
-		SELECT COUNT(a.id_attach)
+		SELECT 
+			COUNT(a.id_attach)
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 		WHERE a.attachment_type = {int:attach}
