@@ -3,7 +3,7 @@
 /**
  * @package "Smush.it" Addon for ElkArte
  * @author Spuds
- * @copyright (c) 2014 Spuds
+ * @copyright (c) 2014-2021 Spuds
  * @license Mozilla Public License version 1.1 http://www.mozilla.org/MPL/1.1/.
  *
  * @version 0.5
@@ -280,8 +280,7 @@ function SmushitBrowse()
 			),
 			array(
 				'position' => 'after_title',
-				'value' => isset($_SESSION['truth_or_consequence'])
-					? $_SESSION['truth_or_consequence'] : $txt['smushit_attachment_check_desc'],
+				'value' => $_SESSION['truth_or_consequence'] ?? $txt['smushit_attachment_check_desc'],
 			),
 		),
 		'list_menu' => array(
@@ -437,7 +436,7 @@ function smushit_getNumFiles($not_smushed = false)
  * - Calls smush.it on the file, if successful then copy's file back to attachments
  * - updates database with any changes
  *
- * @param mixed[] $file
+ * @param array $file
  * @throws \Elk_Exception
  */
 function smushitMain($file)
@@ -467,7 +466,7 @@ function smushitMain($file)
 		$response = json_decode($fetch_data->result('body'));
 
 		// We have a valid response ?
-		if ($response && $response->success == true)
+		if ($response && isset($response->success) && $response->success == true)
 		{
 			// We have and image and a size savings then we continue on like lemmings.
 			if ((!empty($response->data->bytes_saved) && intval($response->data->bytes_saved) > 0 && !empty($response->data->image)))
@@ -520,7 +519,7 @@ function smushitMain($file)
 		// Failure on the smushit size, invalid response bad image, to big, other
 		else
 		{
-			$context['smushit_results'][$file['id_attach']] = $file['filename'] . '|' . $txt['smushit_attachments_error'] . ' ' . $response->success . ' :: ' . $response->data;
+			$context['smushit_results'][$file['id_attach']] = $file['filename'] . '|' . $txt['smushit_attachments_error'] . ' Response :: ' . $response->data;
 		}
 	}
 
@@ -590,7 +589,7 @@ function save_smushit_file($tempfile, $filename_withpath, $file, $response)
 					array(
 						'size' => $response->data->after_size,
 						'ext' => $smushit_ext,
-						'mime' => (isset($sizes['mime']) ? $sizes['mime'] : 'image/' . $smushit_ext),
+						'mime' => ($sizes['mime'] ?? 'image/' . $smushit_ext),
 						'id_attach' => $file['id_attach'],
 						'smushit' => 1,
 					)
@@ -782,7 +781,7 @@ function SmushitSelect()
  *
  * - Used to add subactions to the addon area
  *
- * @param mixed[] $sub_actions
+ * @param array $sub_actions
  * @throws \Elk_Exception
  */
 function iama_smushit(&$sub_actions)
@@ -839,7 +838,7 @@ function ismm_smushit()
  * - Not a lot of settings for old smushit so we add them under the predefined
  * Miscellaneous
  *
- * @param mixed[] $config_vars
+ * @param array $config_vars
  */
 function igm_smushit(&$config_vars)
 {
@@ -900,7 +899,7 @@ function scheduled_smushit()
  *
  * - Adds one more browser type to the mix (actually called from createlist)
  *
- * @param mixed[] $listOptions
+ * @param array $listOptions
  */
 function ilab_smushit(&$listOptions)
 {
@@ -919,7 +918,7 @@ function ilab_smushit(&$listOptions)
  * Integration hook, integrate_list_scheduled_tasks, called from ManageScheduledTasks.controller,
  * (actually called from createlist)
  *
- * @param mixed[] $listOptions
+ * @param array $listOptions
  */
 function ilst_smushit(&$listOptions)
 {

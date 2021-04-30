@@ -7,6 +7,7 @@ This adds the ability to run WPMU DEV WordPress Smush API service on your attach
 The software is licensed under [Mozilla Public License 1.1 (MPL-1.1)](http://opensource.org/licenses/MPL-1.1).
 
 ### Features
+
 * Ability to run Smush.it on all current attachments in a batch mode (based on attachment age/size)
 * Admin->Forum->Attachments & Avatars->File Maintenance
 * Ability to selectively run Smush.it on any single or selection of attachments
@@ -15,6 +16,7 @@ The software is licensed under [Mozilla Public License 1.1 (MPL-1.1)](http://ope
 * Admin->Maintenance->Scheduled Tasks
 
 ### Important Notes
+
 * The Smush.it service will not accept files >1M in size, as such no size reduction on those files is possible with this addon
 * Unable to copy the Smush.it file back to the attachment directory: This generally indicates that the original attachment file was saved with permissions (or owner/group) that will not allow the forum to replace it.  This can occur if the attachments were FTP-ed to the site or your site changed how PHP is run.  You will need to change the file permissions as needed (664)
 * Smush.it returned the following error: Failed to create a temp dir: This means what it says, e.g. Smush.it is unavailable at the current time, all you can do is try again later
