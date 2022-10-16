@@ -3,10 +3,10 @@
 /**
  * @package "Smush.it" Addon for ElkArte
  * @author Spuds
- * @copyright (c) 2014-2021 Spuds
+ * @copyright (c) 2014-2022 Spuds
  * @license Mozilla Public License version 1.1 http://www.mozilla.org/MPL/1.1/.
  *
- * @version 0.5
+ * @version 0.6
  *
  */
 
@@ -165,25 +165,25 @@ function SmushitBrowse()
 					'value' => $txt['attachment_name'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $modSettings, $context, $scripturl;
+					'function' => function($rowData) {
+						global $scripturl;
 
-						$link = \'<a href="\';
-						$link .= sprintf(\'%1$s?action=dlattach;topic=%2$d.0&id=%3$d\', $scripturl, $rowData[\'id_topic\'], $rowData[\'id_attach\']);
-						$link .= \'"\';
+						$link = '<a href="';
+						$link .= sprintf('%1$s?action=dlattach;topic=%2$d.0&id=%3$d', $scripturl, $rowData['id_topic'], $rowData['id_attach']);
+						$link .= '"';
 
-						// Show a popup on click if it\'s a picture and we know its dimensions.
-						if (!empty($rowData[\'width\']) && !empty($rowData[\'height\']))
-							$link .= sprintf(\' onclick="return reqWin(this.href\' .  \' + \\\';image\\\'\' . \', %1$d, %2$d, true);"\', $rowData[\'width\'] + 20, $rowData[\'height\'] + 20);
+						// Show a popup on click if it's a picture, and we know its dimensions.
+						if (!empty($rowData['width']) && !empty($rowData['height']))
+							$link .= sprintf(' onclick="return reqWin(this.href' . ' + \';image\'' . ', %1$d, %2$d, true);"', $rowData['width'] + 20, $rowData['height'] + 20);
 
-						$link .= sprintf(\'>%1$s</a>\', preg_replace(\'~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~\', \'&#\\\\1;\', htmlspecialchars($rowData[\'filename\'])));
+						$link .= sprintf('>%1$s</a>', preg_replace('~&amp;#(\\\\d{1,7}|x[0-9a-fA-F]{1,6});~', '&#\\\\1;', htmlspecialchars($rowData['filename'])));
 
 						// Show the dimensions.
-						if (!empty($rowData[\'width\']) && !empty($rowData[\'height\']))
-							$link .= sprintf(\' <span class="smalltext">%1$dx%2$d</span>\', $rowData[\'width\'], $rowData[\'height\']);
+						if (!empty($rowData['width']) && !empty($rowData['height']))
+							$link .= sprintf(' <span class="smalltext">%1$dx%2$d</span>', $rowData['width'], $rowData['height']);
 
 						return $link;
-					'),
+					},
 				),
 				'sort' => array(
 					'default' => 'a.filename',
@@ -195,10 +195,11 @@ function SmushitBrowse()
 					'value' => $txt['attachment_file_size'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
+					'function' => function($rowData) {
 						global $txt;
-						return sprintf(\'%1$s%2$s\', round($rowData[\'size\'] / 1024, 2), $txt[\'kilobyte\']);
-					'),
+
+						return sprintf('%1$s%2$s', round($rowData['size'] / 1024, 2), $txt['kilobyte']);
+					},
 				),
 				'sort' => array(
 					'default' => 'a.size DESC',
@@ -210,10 +211,10 @@ function SmushitBrowse()
 					'value' => $txt['smushited'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
+					'function' => function($rowData) {
 						global $txt;
-						return (($rowData[\'smushit\'] == 0) ? $txt[\'no\'] : $txt[\'yes\']);
-					'),
+						return (($rowData['smushit'] == 0) ? $txt['no'] : $txt['yes']);
+					},
 				),
 				'sort' => array(
 					'default' => 'a.smushit DESC',
@@ -225,10 +226,10 @@ function SmushitBrowse()
 					'value' => $txt['subject'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
+					'function' => function($rowData) {
 						global $txt, $scripturl;
-						return sprintf(\'%1$s <a href="%2$s?topic=%3$d.msg%4$d#msg%4$d">%5$s</a>\', $txt[\'in\'], $scripturl, $rowData[\'id_topic\'], $rowData[\'id_msg\'], $rowData[\'subject\']);
-					'),
+						return sprintf('%1$s <a href="%2$s?topic=%3$d.msg%4$d#msg%4$d">%5$s</a>', $txt['in'], $scripturl, $rowData['id_topic'], $rowData['id_msg'], $rowData['subject']);
+					},
 				),
 				'sort' => array(
 					'default' => 'm.subject',
@@ -240,13 +241,12 @@ function SmushitBrowse()
 					'value' => $txt['date'],
 				),
 				'data' => array(
-					'function' => create_function('$rowData', '
-						global $txt, $context, $scripturl;
+					'function' => function($rowData) {
+						global $txt;
 
 						// The date the message containing the attachment was posted
-						$date = empty($rowData[\'poster_time\']) ? $txt[\'never\'] : standardTime($rowData[\'poster_time\']);
-						return $date;
-					'),
+						return empty($rowData['poster_time']) ? $txt['never'] : standardTime($rowData['poster_time']);
+					},
 				),
 				'sort' => array(
 					'default' => 'm.poster_time',
@@ -361,8 +361,8 @@ function smushit_getFiles($start, $chunk_size, $sort = '', $type = '', $size = 0
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 		WHERE a.attachment_type = {int:attach}
-			AND a.size BETWEEN {int:attach_size} AND 1024000
-			AND (a.fileext = \'jpg\' OR a.fileext = \'png\' OR a.fileext = \'gif\')' .
+			AND a.size BETWEEN {int:attach_size} AND 2048000
+			AND (a.fileext = "jpg" OR a.fileext = "png" OR a.fileext = "gif")' .
 		(($age !== '') ? 'AND m.poster_time > {int:poster_time} ' : '') .
 		(($type !== '') ? 'AND a.smushit = {int:smushit}' : '') . '
 		ORDER BY {raw:sort}
@@ -408,9 +408,9 @@ function smushit_getNumFiles($not_smushed = false)
 		FROM {db_prefix}attachments AS a
 			INNER JOIN {db_prefix}messages AS m ON (m.id_msg = a.id_msg)
 		WHERE a.attachment_type = {int:attach}
-			AND a.size BETWEEN {int:attach_size} AND 1024000
+			AND a.size BETWEEN {int:attach_size} AND 2048000
 			AND m.poster_time > {int:poster_time}
-			AND (a.fileext = \'jpg\' OR a.fileext = \'png\' OR a.fileext = \'gif\')' .
+			AND (a.fileext = "jpg" OR a.fileext = "png" OR a.fileext = "gif")' .
 		(($not_smushed) ? 'AND a.smushit = {int:smushit}' : ''),
 		array(
 			'attach' => 0,
@@ -466,17 +466,17 @@ function smushitMain($file)
 		$response = json_decode($fetch_data->result('body'));
 
 		// We have a valid response ?
-		if ($response && isset($response->success) && $response->success == true)
+		if ($response && isset($response->success) && $response->success)
 		{
 			// We have and image and a size savings then we continue on like lemmings.
-			if ((!empty($response->data->bytes_saved) && intval($response->data->bytes_saved) > 0 && !empty($response->data->image)))
+			if ((!empty($response->data->bytes_saved) && (int) $response->data->bytes_saved > 0 && !empty($response->data->image)))
 			{
 				// Decode the image in the response
 				$image = base64_decode($response->data->image);
 				$image_md5 = md5($response->data->image);
 
 				// Corruption is not an option
-				if ($response->data->image_md5 == $image_md5)
+				if ($response->data->image_md5 === $image_md5)
 				{
 					// See what kind of image file we got back and if we are allowed to change it if needed.
 					$tempfile = $filename_withpath . '.tmp';
@@ -495,7 +495,7 @@ function smushitMain($file)
 					$context['smushit_results'][$file['id_attach']] = $file['filename'] . '|' . $txt['smushit_attachments_corrupt'];
 				}
 			}
-			// No savings in size possible, mark it as smushed so we don't try again
+			// No savings in size possible, mark it as smushed, so we don't try again
 			else
 			{
 				if (isset($response->data->bytes_saved) && $response->data->bytes_saved <= 0)
@@ -503,7 +503,8 @@ function smushitMain($file)
 					$db->query('', '
 						UPDATE {db_prefix}attachments
 						SET smushit = {int:smushit}
-						WHERE id_attach = {int:id_attach}
+						WHERE 
+							id_attach = {int:id_attach}
 						LIMIT 1',
 						array(
 							'id_attach' => $file['id_attach'],
@@ -549,7 +550,7 @@ function save_smushit_file($tempfile, $filename_withpath, $file, $response)
 	$smushit_ext = (isset($sizes[2], $known[$sizes[2]])) ? $known[$sizes[2]] : 'na';
 
 	// Things are cool with the returned file type?
-	if ((strtolower($file['fileext']) === 'gif' && $smushit_ext === 'png' && isset($modSettings['smushit_attachments_png'])) || (strtolower($file['fileext']) == $smushit_ext))
+	if ((strtolower($file['fileext']) === 'gif' && $smushit_ext === 'png' && isset($modSettings['smushit_attachments_png'])) || (strtolower($file['fileext']) === $smushit_ext))
 	{
 		// Trust but verify ... ok really don't trust at all ... just verify that the returned file is good
 		//  a) an image
@@ -638,9 +639,6 @@ function make_smushit_request($file, $file_data)
 		// Going to need Curl to make this call happen
 		$fetch_data = new Curl_Fetch_Webdata(array(CURLOPT_HTTPHEADER => $headers, CURLOPT_TIMEOUT => 30));
 		$fetch_data->get_url_data('https://smushpro.wpmudev.org/1.0/', $file_data);
-
-		// Free up some space
-		unset($file_data);
 
 		if ($fetch_data->result('error'))
 		{

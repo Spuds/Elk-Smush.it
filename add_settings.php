@@ -5,14 +5,14 @@
  * @copyright Spuds
  * @license   MPL 1.1 http://mozilla.org/MPL/1.1/
  *
- * @version 0.5
+ * @version 0.6
  *
  */
 
-// If we have found SSI.php and we are outside of ELK, then we are running standalone.
-if (file_exists(dirname(__FILE__) . '/SSI.php') && !defined('ELK'))
+// If we have found SSI.php, and we are outside of ELK, then we are running standalone.
+if (file_exists(__DIR__ . '/SSI.php') && !defined('ELK'))
 {
-	require_once(dirname(__FILE__) . '/SSI.php');
+	require_once(__DIR__ . '/SSI.php');
 }
 elseif (!defined('ELK')) // If we are outside ELK and can't find SSI.php, then throw an error
 {

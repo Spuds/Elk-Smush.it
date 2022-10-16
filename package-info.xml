@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE package-info SYSTEM "http://www.elkarte.net/site/package-info">
-<package-info xmlns="http://www.elkarte.net/site/package-info" xmlns:elk="http://www.elkarte.net/">
+<package-info xmlns="https://www.elkarte.net/site/package-info" xmlns:elk="https://www.elkarte.net/">
 	<name>Smush.it!</name>
 	<id>spuds:Smush.it</id>
-	<version>0.5</version>
+	<version>0.6</version>
 	<type>addon</type>
 	<license><![CDATA[
 /**
@@ -12,7 +12,7 @@
  * @author spuds
  * @license MPL 1.1 http://mozilla.org/MPL/1.1/
  *
- * @version 0.5
+ * @version 0.6
  */
 ]]></license>
 

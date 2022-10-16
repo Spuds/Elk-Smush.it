@@ -5,13 +5,13 @@
  * @copyright Spuds
  * @license   MPL 1.1 http://mozilla.org/MPL/1.1/
  *
- * @version 0.2
+ * @version 0.6
  *
  */
 
 // If we have found SSI.php and we are outside of ELK, then we are running standalone.
-if (file_exists(dirname(__FILE__) . '/SSI.php') && !defined('ELK'))
-	require_once(dirname(__FILE__) . '/SSI.php');
+if (file_exists(__DIR__ . '/SSI.php') && !defined('ELK'))
+	require_once(__DIR__ . '/SSI.php');
 elseif (!defined('ELK')) // If we are outside ELK and can't find SSI.php, then throw an error
 	die('<b>Error:</b> Cannot install - please verify you put this file in the same place as Elkarte\'s SSI.php.');
 
@@ -76,5 +76,5 @@ foreach ($tables as $table)
 foreach ($columns as $column)
   $dbtbl->db_remove_column($column['table_name'], $column['column_name'], $column['parameters'], $column['error']);
 
-if (ELK == 'SSI')
+if (ELK === 'SSI')
    echo 'Congratulations! You have successfully removed the integration hooks.';
